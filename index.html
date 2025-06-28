@@ -83,13 +83,20 @@
                 <div class="flex-shrink-0">
                     <h1 class="text-xl font-bold text-teal-700">Fundamentos de Redes</h1>
                 </div>
-                <div class="hidden md:block">
-                    <div class="ml-10 flex items-baseline space-x-4">
-                        <a href="#intro" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Início</a>
-                        <a href="#multiplexacao" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Multiplexação</a>
-                        <a href="#multimidia" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Redes Multimídia</a>
-                        <a href="#meios" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Meios de Transmissão</a>
-                        <a href="#comutacao" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Comutação</a>
+                <div class="flex items-center">
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a href="#intro" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Início</a>
+                            <a href="#multiplexacao" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Multiplexação</a>
+                            <a href="#multimidia" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Redes Multimídia</a>
+                            <a href="#meios" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Meios de Transmissão</a>
+                            <a href="#comutacao" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Comutação</a>
+                        </div>
+                    </div>
+                    <div class="flex items-center ml-4">
+                        <a href="https://github.com/ArturRSA19/FRC-Site" target="_blank" rel="noopener noreferrer" class="ml-3 text-slate-500 hover:text-slate-900">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.168 6.839 9.492.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.031-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.378.203 2.398.1 2.651.64.7 1.03 1.595 1.03 2.688 0 3.848-2.338 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.001 10.001 0 0022 12c0-5.523-4.477-10-10-10z" clip-rule="evenodd"></path></svg>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -223,19 +230,19 @@
                     </div>
                     <div id="media-controls" class="mt-6 flex flex-wrap justify-center gap-4 text-sm">
                         <label class="flex items-center space-x-2">
-                            <input type="checkbox" class="media-checkbox" value="Par Trançado (UTP)" checked>
+                            <input type="checkbox" class="media-checkbox accent-teal-600" value="Par Trançado (UTP)" checked>
                             <span>Par Trançado</span>
                         </label>
                         <label class="flex items-center space-x-2">
-                            <input type="checkbox" class="media-checkbox" value="Cabo Coaxial" checked>
+                            <input type="checkbox" class="media-checkbox accent-teal-600" value="Cabo Coaxial" checked>
                             <span>Cabo Coaxial</span>
                         </label>
                         <label class="flex items-center space-x-2">
-                            <input type="checkbox" class="media-checkbox" value="Fibra (Multimodo)" checked>
+                            <input type="checkbox" class="media-checkbox accent-teal-600" value="Fibra (Multimodo)" checked>
                             <span>Fibra Multimodo</span>
                         </label>
                          <label class="flex items-center space-x-2">
-                            <input type="checkbox" class="media-checkbox" value="Fibra (Monomodo)" checked>
+                            <input type="checkbox" class="media-checkbox accent-teal-600" value="Fibra (Monomodo)" checked>
                             <span>Fibra Monomodo</span>
                         </label>
                     </div>
@@ -304,7 +311,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
-            // --- DATA ---
+            // --- DATA & CHART CONFIG ---
             const mediaData = {
                 labels: ['Largura de Banda', 'Imunidade a Ruído', 'Custo (Invertido)'],
                 datasets: [
@@ -334,18 +341,74 @@
                     }
                 ]
             };
+            
+            const gridColor = 'rgba(0, 0, 0, 0.1)';
+            const textColor = '#374151';
 
+            // --- Media Chart ---
+            const mediaCtx = document.getElementById('mediaChart').getContext('2d');
+            const mediaChart = new Chart(mediaCtx, {
+                type: 'bar',
+                data: { labels: mediaData.labels, datasets: mediaData.datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, max: 10, grid: { color: gridColor }, ticks: { color: textColor } },
+                        x: { grid: { color: gridColor }, ticks: { color: textColor } }
+                    },
+                    plugins: {
+                        legend: { position: 'top', labels: { color: textColor } }
+                    }
+                }
+            });
+
+            // --- Switching Chart ---
+            const switchingCtx = document.getElementById('switchingChart').getContext('2d');
+            new Chart(switchingCtx, {
+                type: 'bar',
+                data: switchingData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10,
+                            grid: { color: gridColor },
+                            ticks: {
+                                color: textColor,
+                                callback: function(value) {
+                                    if (value === 0) return 'Baixo';
+                                    if (value === 5) return 'Médio';
+                                    if (value === 10) return 'Alto';
+                                    return null;
+                                }
+                            }
+                        },
+                        x: { grid: { color: gridColor }, ticks: { color: textColor } }
+                    },
+                     plugins: {
+                        legend: { position: 'top', labels: { color: textColor } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) { label += ': '; }
+                                    if (context.parsed.y !== null) { label += `${context.parsed.y}/10`; }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
 
             // --- Navigation ---
             const navLinks = document.querySelectorAll('.nav-link');
             const sections = document.querySelectorAll('main section');
 
-            const observerOptions = {
-                root: null,
-                rootMargin: '0px',
-                threshold: 0.4
-            };
-
+            const observerOptions = { root: null, rootMargin: '0px', threshold: 0.4 };
             const sectionObserver = new IntersectionObserver((entries, observer) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -356,9 +419,7 @@
                 });
             }, observerOptions);
 
-            sections.forEach(section => {
-                sectionObserver.observe(section);
-            });
+            sections.forEach(section => sectionObserver.observe(section));
 
             // --- Accordion ---
             const accordionButtons = document.querySelectorAll('.accordion-button');
@@ -366,16 +427,12 @@
                 button.addEventListener('click', () => {
                     const content = button.nextElementSibling;
                     const isOpen = button.classList.contains('open');
-
-                    // Close all others
                     accordionButtons.forEach(btn => {
                         if (btn !== button) {
                             btn.classList.remove('open');
                             btn.nextElementSibling.style.maxHeight = null;
                         }
                     });
-
-                    // Toggle current
                     if (isOpen) {
                         button.classList.remove('open');
                         content.style.maxHeight = null;
@@ -408,13 +465,9 @@
                     <div class="absolute top-1/2 left-4 -translate-y-1/2 text-sm font-bold">TX</div>
                     <div class="absolute top-1/2 right-4 -translate-y-1/2 text-sm font-bold">RX</div>
                 `;
-                
                 let packetCount = 0;
                 jitterInterval = setInterval(() => {
-                    if (packetCount >= 10) {
-                        clearInterval(jitterInterval);
-                        return;
-                    }
+                    if (packetCount >= 10) { clearInterval(jitterInterval); return; }
                     createPacket();
                     packetCount++;
                 }, highJitter ? (Math.random() * 800 + 200) : 500);
@@ -427,47 +480,18 @@
                 packet.style.top = `${yPos}%`;
                 packet.style.left = '5%';
                 jitterContainer.appendChild(packet);
-
-                setTimeout(() => {
-                    packet.style.left = '90%';
-                }, 100);
-
-                setTimeout(() => {
-                    packet.remove();
-                }, 1100);
+                setTimeout(() => { packet.style.left = '90%'; }, 100);
+                setTimeout(() => { packet.remove(); }, 1100);
             }
 
-            // --- Media Chart ---
-            const mediaCtx = document.getElementById('mediaChart').getContext('2d');
-            const mediaChart = new Chart(mediaCtx, {
-                type: 'bar',
-                data: {
-                    labels: mediaData.labels,
-                    datasets: mediaData.datasets
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { beginAtZero: true, max: 10 }
-                    },
-                    plugins: {
-                        legend: { position: 'top' },
-                        title: { display: false }
-                    }
-                }
-            });
-
+            // --- Media Chart Controls ---
             const mediaCheckboxes = document.querySelectorAll('.media-checkbox');
-            mediaCheckboxes.forEach(cb => {
-                cb.addEventListener('change', updateMediaChart);
-            });
+            mediaCheckboxes.forEach(cb => cb.addEventListener('change', updateMediaChart));
 
             function updateMediaChart() {
                 const selectedLabels = Array.from(mediaCheckboxes)
                                            .filter(cb => cb.checked)
                                            .map(cb => cb.value);
-                
                 mediaChart.data.datasets = mediaData.datasets.filter(ds => selectedLabels.includes(ds.label));
                 mediaChart.update();
             }
@@ -497,9 +521,7 @@
                     circuitPath.style.backgroundColor = '#e2e8f0'; // slate-200
                 }, 3500);
 
-                setTimeout(() => {
-                    circuitStatus.textContent = 'Pronto.';
-                }, 4500);
+                setTimeout(() => { circuitStatus.textContent = 'Pronto.'; }, 4500);
             }
 
             const packetStatus = document.getElementById('packet-status');
@@ -507,7 +529,6 @@
 
             function runPacketAnimation() {
                  packetStatus.textContent = '1. Dividindo em pacotes...';
-                 
                  setTimeout(() => {
                      packetStatus.textContent = '2. Enviando pacotes...';
                      for (let i = 0; i < 5; i++) {
@@ -516,29 +537,18 @@
                              packet.className = 'packet bg-orange-500';
                              const path = Math.random() > 0.5 ? 1 : -1;
                              packet.style.left = '5%';
-                             
                              const anim = packet.animate([
                                  { top: '50%', transform: 'translateY(-50%)', left: '5%' },
                                  { top: `${50 + path * 25}%`, transform: 'translateY(-50%)', left: '50%' },
                                  { top: '50%', transform: 'translateY(-50%)', left: '90%' },
-                             ], {
-                                 duration: 2000,
-                                 easing: 'ease-in-out'
-                             });
+                             ], { duration: 2000, easing: 'ease-in-out' });
                              packetAnimContainer.appendChild(packet);
                              anim.onfinish = () => packet.remove();
-
                          }, i * 300);
                      }
                  }, 1000);
-
-                setTimeout(() => {
-                    packetStatus.textContent = '3. Reagrupando mensagem...';
-                }, 3500);
-
-                 setTimeout(() => {
-                    packetStatus.textContent = 'Pronto.';
-                }, 4500);
+                setTimeout(() => { packetStatus.textContent = '3. Reagrupando mensagem...'; }, 3500);
+                setTimeout(() => { packetStatus.textContent = 'Pronto.'; }, 4500);
             }
             
             const switchingObserver = new IntersectionObserver((entries) => {
@@ -551,49 +561,6 @@
                 }
             }, { threshold: 0.5 });
             switchingObserver.observe(document.getElementById('comutacao'));
-
-            // --- Switching Chart ---
-            const switchingCtx = document.getElementById('switchingChart').getContext('2d');
-            new Chart(switchingCtx, {
-                type: 'bar',
-                data: switchingData,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 10,
-                            ticks: {
-                                callback: function(value) {
-                                    if (value === 0) return 'Baixo';
-                                    if (value === 5) return 'Médio';
-                                    if (value === 10) return 'Alto';
-                                    return null;
-                                }
-                            }
-                        }
-                    },
-                     plugins: {
-                        legend: { position: 'top' },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed.y !== null) {
-                                        label += `${context.parsed.y}/10`;
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
         });
     </script>
 </body>
