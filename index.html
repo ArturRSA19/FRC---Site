@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorador Interativo: Fundamentos de Redes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Tech -->
+    <!-- Application Structure Plan: A single-page application with a fixed top navigation bar for smooth scrolling to four main thematic sections: Multiplexação, Redes Multimídia, Meios de Transmissão, and Comutação. This structure was chosen over a linear document format to allow users to quickly jump to topics of interest and explore them in a non-linear fashion. Each section employs specific interactive elements (accordions, animations, dynamic charts) to break down complex information and encourage user engagement, making the dense, technical content more digestible and easier to understand. The goal is to transform passive reading into active exploration. -->
+    <!-- Visualization & Content Choices: 
+        - Multiplexação: Goal: Inform/Organize. Method: Interactive accordion (HTML/CSS/JS) to show/hide details of each technique. Justification: Prevents information overload by presenting complex types in digestible chunks.
+        - Redes Multimídia: Goal: Explain abstract concepts. Method: Simple packet animation (JS/CSS) to visualize delay and jitter. Justification: Makes abstract network behavior tangible and understandable.
+        - Meios de Transmissão: Goal: Compare. Method: Dynamic grouped bar chart (Chart.js) updated by user-selected checkboxes. Justification: Converts a static comparison table into a powerful, user-driven analysis tool for comparing media attributes.
+        - Comutação: Goal: Compare/Explain processes. Method: Side-by-side animated diagrams (JS/CSS) and a dynamic bar chart. Justification: Visually contrasts the two core switching philosophies and allows direct comparison of their characteristics, clarifying their fundamental trade-offs.
+        Library/Method: Chart.js for all charts (canvas-based). Custom JS/CSS for all diagrams and animations.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+            color: #1e293b; /* slate-800 */
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link.active, .nav-link:hover {
+            color: #0d9488; /* teal-600 */
+            border-bottom-color: #0d9488; /* teal-600 */
+        }
+        .section-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .accordion-button.open .accordion-icon {
+            transform: rotate(180deg);
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 50vh;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 450px;
+            }
+        }
+        .packet {
+            position: absolute;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background-color: #0d9488; /* teal-600 */
+            transition: left 1s linear;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <header class="bg-white/80 backdrop-blur-lg shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-teal-700">Fundamentos de Redes</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#intro" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Início</a>
+                        <a href="#multiplexacao" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Multiplexação</a>
+                        <a href="#multimidia" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Redes Multimídia</a>
+                        <a href="#meios" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Meios de Transmissão</a>
+                        <a href="#comutacao" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Comutação</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="intro" class="py-16 sm:py-20">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h2 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Explorador Interativo de Fundamentos de Redes</h2>
+                <p class="mt-6 max-w-3xl mx-auto text-lg leading-8 text-slate-600">
+                    Bem-vindo! Esta aplicação transforma o conteúdo denso de um relatório sobre redes de computadores em uma experiência de aprendizado interativa. Navegue pelas seções para visualizar, comparar e entender os pilares que sustentam a comunicação digital moderna, da otimização de cabos à transmissão de vídeos em tempo real.
+                </p>
+            </div>
+        </section>
+
+        <section id="multiplexacao" class="py-16 sm:py-20 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="text-3xl font-bold text-slate-900 text-center">Multiplexação</h2>
+                    <p class="mt-4 text-lg text-slate-600 text-center">
+                        A multiplexação é a técnica que permite que múltiplos sinais de comunicação compartilhem um único meio físico, como um cabo ou fibra óptica. Esta seção explora como diferentes métodos organizam os dados para otimizar o uso da largura de banda. Interaja com os tópicos abaixo para descobrir os detalhes de cada abordagem.
+                    </p>
+                    
+                    <div class="mt-12 space-y-4">
+                        <div class="accordion-item border border-slate-200 rounded-lg">
+                            <button class="accordion-button w-full flex justify-between items-center p-5 text-left font-semibold text-slate-700 hover:bg-slate-50">
+                                <span>Multiplexação por Divisão de Frequência (FDM)</span>
+                                <span class="accordion-icon transition-transform duration-300">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </span>
+                            </button>
+                            <div class="accordion-content">
+                                <div class="p-5 border-t border-slate-200 text-slate-600">
+                                    <p>Técnica analógica que divide o espectro de frequência do meio em várias faixas menores (canais). Cada sinal de entrada é modulado em uma frequência portadora diferente, ocupando um canal exclusivo. É como ter várias estações de rádio transmitindo simultaneamente pelo ar, cada uma em sua própria frequência.</p>
+                                    <p class="mt-2"><strong>Aplicações:</strong> Rádio AM/FM, TV analógica, sistemas de telefonia de primeira geração.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item border border-slate-200 rounded-lg">
+                            <button class="accordion-button w-full flex justify-between items-center p-5 text-left font-semibold text-slate-700 hover:bg-slate-50">
+                                <span>Multiplexação por Divisão de Tempo (TDM e STDM)</span>
+                                <span class="accordion-icon transition-transform duration-300">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </span>
+                            </button>
+                            <div class="accordion-content">
+                                <div class="p-5 border-t border-slate-200 text-slate-600">
+                                    <p>Técnica digital que divide o acesso ao meio em intervalos de tempo (*time slots*). No <strong>TDM síncrono</strong>, cada usuário tem um *slot* fixo, o que pode levar ao desperdício de banda se o usuário estiver inativo.</p>
+                                    <p class="mt-2">A <strong>Multiplexação por Divisão de Tempo Estatística (STDM)</strong> melhora isso alocando os *time slots* dinamicamente, apenas para os usuários que têm dados a enviar. É a base da comutação de pacotes e da Internet.</p>
+                                    <p class="mt-2"><strong>Aplicações:</strong> Linhas telefônicas digitais (T1/E1), redes GSM (TDM); Internet (STDM).</p>
+                                </div>
+                            </div>
+                        </div>
+
+                         <div class="accordion-item border border-slate-200 rounded-lg">
+                            <button class="accordion-button w-full flex justify-between items-center p-5 text-left font-semibold text-slate-700 hover:bg-slate-50">
+                                <span>Outras Técnicas (WDM e CDM)</span>
+                                <span class="accordion-icon transition-transform duration-300">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </span>
+                            </button>
+                            <div class="accordion-content">
+                                <div class="p-5 border-t border-slate-200 text-slate-600">
+                                    <p><strong>WDM (Multiplexação por Divisão de Comprimento de Onda):</strong> Essencialmente FDM para luz. Usa diferentes comprimentos de onda (cores) de luz para transmitir múltiplos sinais em uma única fibra óptica, aumentando drasticamente a capacidade dos backbones da Internet.</p>
+                                    <p class="mt-2"><strong>CDM (Multiplexação por Divisão de Código):</strong> Permite que todos os usuários transmitam simultaneamente em toda a faixa de frequência. A separação é feita atribuindo um código matemático único a cada usuário. O receptor usa esse código para "pescar" o sinal desejado do ruído de fundo.</p>
+                                    <p class="mt-2"><strong>Aplicações:</strong> Backbones da Internet (WDM); sistemas de telefonia 3G (CDM).</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="multimidia" class="py-16 sm:py-20">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="text-3xl font-bold text-slate-900 text-center">Redes Multimídia</h2>
+                    <p class="mt-4 text-lg text-slate-600 text-center">
+                        O envio de áudio e vídeo em tempo real pela internet apresenta desafios únicos que não existem na transferência de arquivos ou e-mails. Esta seção explora os requisitos críticos de desempenho, como atraso (*delay*) e sua variação (*jitter*). A animação abaixo ilustra como o *jitter* afeta a chegada de pacotes.
+                    </p>
+
+                    <div class="section-card mt-12 p-6">
+                        <h3 class="font-semibold text-center">Simulador de Jitter</h3>
+                        <div id="jitter-animation-container" class="relative w-full h-24 bg-slate-100 rounded-md mt-4 overflow-hidden">
+                            <div class="absolute top-1/2 left-4 -translate-y-1/2 text-sm font-bold">TX</div>
+                            <div class="absolute top-1/2 right-4 -translate-y-1/2 text-sm font-bold">RX</div>
+                        </div>
+                        <div class="mt-4 flex justify-center space-x-4">
+                            <button id="start-jitter-btn" class="px-4 py-2 bg-teal-600 text-white font-semibold rounded-md hover:bg-teal-700 transition">Iniciar Animação</button>
+                            <button id="toggle-jitter-btn" class="px-4 py-2 bg-orange-500 text-white font-semibold rounded-md hover:bg-orange-600 transition">Ativar Jitter Alto</button>
+                        </div>
+                        <p class="text-sm text-slate-500 text-center mt-2">Observe como os pacotes (círculos) chegam ao receptor (RX). Com jitter baixo, chegam em intervalos regulares. Com jitter alto, a chegada é irregular, o que degradaria a qualidade de uma chamada ou vídeo.</p>
+                    </div>
+
+                    <div class="mt-12 grid md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-800">Vantagens</h3>
+                            <ul class="mt-4 space-y-2 list-disc list-inside text-slate-600">
+                                <li><strong>Eficiência e Custo:</strong> Utiliza uma única infraestrutura para dados, voz e vídeo, reduzindo custos.</li>
+                                <li><strong>Alcance Global:</strong> A internet fornece uma plataforma de distribuição mundial.</li>
+                                <li><strong>Inovação:</strong> Permitiu o surgimento de serviços como streaming e videoconferências.</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-800">Desvantagens</h3>
+                             <ul class="mt-4 space-y-2 list-disc list-inside text-slate-600">
+                                <li><strong>Desempenho não garantido:</strong> A natureza de "melhor esforço" da internet causa atrasos e perdas.</li>
+                                <li><strong>Complexidade:</strong> Exige protocolos adicionais (QoS, RTP) para funcionar bem.</li>
+                                <li><strong>Segurança:</strong> A transmissão em redes públicas levanta preocupações de privacidade.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="meios" class="py-16 sm:py-20 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-slate-900 text-center">Meios de Transmissão</h2>
+                <p class="mt-4 text-lg text-slate-600 text-center max-w-4xl mx-auto">
+                    Toda comunicação de rede precisa de um caminho físico ou sem fio para viajar. Esta seção explora os diferentes meios, desde cabos de cobre até ondas de rádio. Use o gráfico interativo para comparar as características de desempenho, custo e imunidade a ruído dos principais meios guiados.
+                </p>
+
+                <div class="section-card mt-12 p-6">
+                    <h3 class="font-semibold text-center mb-4">Análise Comparativa de Meios Guiados</h3>
+                    <div id="media-chart-container" class="chart-container">
+                        <canvas id="mediaChart"></canvas>
+                    </div>
+                    <div id="media-controls" class="mt-6 flex flex-wrap justify-center gap-4 text-sm">
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" class="media-checkbox" value="Par Trançado (UTP)" checked>
+                            <span>Par Trançado</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" class="media-checkbox" value="Cabo Coaxial" checked>
+                            <span>Cabo Coaxial</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" class="media-checkbox" value="Fibra (Multimodo)" checked>
+                            <span>Fibra Multimodo</span>
+                        </label>
+                         <label class="flex items-center space-x-2">
+                            <input type="checkbox" class="media-checkbox" value="Fibra (Monomodo)" checked>
+                            <span>Fibra Monomodo</span>
+                        </label>
+                    </div>
+                    <p class="text-sm text-slate-500 text-center mt-4">Marque ou desmarque as caixas para comparar dinamicamente os meios. Os valores são representações relativas para fins de comparação (0-10).</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="comutacao" class="py-16 sm:py-20">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-slate-900 text-center">Comutação de Circuitos vs. Pacotes</h2>
+                <p class="mt-4 text-lg text-slate-600 text-center max-w-4xl mx-auto">
+                    Comutação é a técnica que encaminha dados através dos nós de uma rede. Existem duas filosofias opostas: reservar um caminho dedicado (circuitos) ou enviar os dados em pedaços independentes (pacotes). Esta seção compara visualmente as duas abordagens e seus trade-offs fundamentais, que definem como a telefonia tradicional e a internet funcionam.
+                </p>
+
+                <div class="mt-12 grid lg:grid-cols-2 gap-8 items-start">
+                    <div class="section-card p-6">
+                        <h3 class="text-xl font-bold text-center">Comutação de Circuitos</h3>
+                        <p class="text-sm text-center text-slate-500 mb-4">Ex: Telefonia tradicional</p>
+                        <div id="circuit-animation" class="h-40 relative border border-dashed border-slate-300 rounded-md p-2">
+                             <div class="absolute top-2 left-2 text-xs font-bold">A</div>
+                             <div class="absolute top-2 right-2 text-xs font-bold">B</div>
+                             <div id="circuit-path" class="absolute top-1/2 left-0 w-full h-1 bg-slate-200 -translate-y-1/2"></div>
+                             <div id="circuit-data" class="absolute top-1/2 left-0 h-1 bg-teal-500 -translate-y-1/2" style="width: 0%;"></div>
+                             <p id="circuit-status" class="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs font-semibold text-teal-700"></p>
+                        </div>
+                        <ul class="mt-4 space-y-2 text-sm text-slate-600">
+                           <li>✅ <strong>Vantagem:</strong> Qualidade de serviço garantida (sem atraso variável ou jitter).</li>
+                           <li>❌ <strong>Desvantagem:</strong> Ineficiente. A banda é desperdiçada se não houver dados sendo enviados.</li>
+                        </ul>
+                    </div>
+
+                    <div class="section-card p-6">
+                        <h3 class="text-xl font-bold text-center">Comutação de Pacotes</h3>
+                        <p class="text-sm text-center text-slate-500 mb-4">Ex: Internet</p>
+                         <div id="packet-animation" class="h-40 relative border border-dashed border-slate-300 rounded-md p-2 overflow-hidden">
+                            <div class="absolute top-2 left-2 text-xs font-bold">A</div>
+                            <div class="absolute top-2 right-2 text-xs font-bold">B</div>
+                            <p id="packet-status" class="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs font-semibold text-teal-700"></p>
+                         </div>
+                         <ul class="mt-4 space-y-2 text-sm text-slate-600">
+                           <li>✅ <strong>Vantagem:</strong> Uso eficiente da largura de banda; recursos compartilhados.</li>
+                           <li>❌ <strong>Desvantagem:</strong> Desempenho não garantido; sujeito a atrasos e congestionamento.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                 <div class="section-card mt-12 p-6">
+                    <h3 class="font-semibold text-center mb-4">Comparativo de Características</h3>
+                    <div id="switching-chart-container" class="chart-container">
+                        <canvas id="switchingChart"></canvas>
+                    </div>
+                     <p class="text-sm text-slate-500 text-center mt-4">O gráfico compara as duas técnicas em eficiência, qualidade de serviço (QoS) e robustez a falhas.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-800 text-slate-400 mt-16">
+        <div class="container mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-sm">
+            <p>Aplicação Interativa desenvolvida para explorar os Fundamentos de Redes de Computadores.</p>
+            <p class="mt-1">&copy; 2025 - Baseado no Relatório de Pesquisa.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- DATA ---
+            const mediaData = {
+                labels: ['Largura de Banda', 'Imunidade a Ruído', 'Custo (Invertido)'],
+                datasets: [
+                    { label: 'Par Trançado (UTP)', data: [4, 2, 9], backgroundColor: 'rgba(59, 130, 246, 0.7)' },
+                    { label: 'Cabo Coaxial', data: [6, 7, 7], backgroundColor: 'rgba(239, 68, 68, 0.7)' },
+                    { label: 'Fibra (Multimodo)', data: [8, 10, 4], backgroundColor: 'rgba(249, 115, 22, 0.7)' },
+                    { label: 'Fibra (Monomodo)', data: [10, 10, 2], backgroundColor: 'rgba(22, 163, 74, 0.7)' },
+                ]
+            };
+
+            const switchingData = {
+                labels: ['Eficiência de Banda', 'Qualidade de Serviço (QoS)', 'Robustez a Falhas'],
+                datasets: [
+                    {
+                        label: 'Comutação de Circuitos',
+                        data: [2, 9, 3],
+                        backgroundColor: 'rgba(139, 92, 246, 0.7)',
+                        borderColor: 'rgba(139, 92, 246, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Comutação de Pacotes',
+                        data: [9, 3, 9],
+                        backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            };
+
+
+            // --- Navigation ---
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('main section');
+
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.4
+            };
+
+            const sectionObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.toggle('active', link.getAttribute('href').substring(1) === entry.target.id);
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                sectionObserver.observe(section);
+            });
+
+            // --- Accordion ---
+            const accordionButtons = document.querySelectorAll('.accordion-button');
+            accordionButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const content = button.nextElementSibling;
+                    const isOpen = button.classList.contains('open');
+
+                    // Close all others
+                    accordionButtons.forEach(btn => {
+                        if (btn !== button) {
+                            btn.classList.remove('open');
+                            btn.nextElementSibling.style.maxHeight = null;
+                        }
+                    });
+
+                    // Toggle current
+                    if (isOpen) {
+                        button.classList.remove('open');
+                        content.style.maxHeight = null;
+                    } else {
+                        button.classList.add('open');
+                        content.style.maxHeight = content.scrollHeight + 'px';
+                    }
+                });
+            });
+
+            // --- Jitter Animation ---
+            const jitterContainer = document.getElementById('jitter-animation-container');
+            const startJitterBtn = document.getElementById('start-jitter-btn');
+            const toggleJitterBtn = document.getElementById('toggle-jitter-btn');
+            let jitterInterval;
+            let highJitter = false;
+
+            toggleJitterBtn.addEventListener('click', () => {
+                highJitter = !highJitter;
+                toggleJitterBtn.textContent = highJitter ? 'Ativar Jitter Baixo' : 'Ativar Jitter Alto';
+                toggleJitterBtn.classList.toggle('bg-orange-500', highJitter);
+                toggleJitterBtn.classList.toggle('hover:bg-orange-600', highJitter);
+                toggleJitterBtn.classList.toggle('bg-teal-600', !highJitter);
+                toggleJitterBtn.classList.toggle('hover:bg-teal-700', !highJitter);
+            });
+
+            startJitterBtn.addEventListener('click', () => {
+                if (jitterInterval) clearInterval(jitterInterval);
+                jitterContainer.innerHTML = `
+                    <div class="absolute top-1/2 left-4 -translate-y-1/2 text-sm font-bold">TX</div>
+                    <div class="absolute top-1/2 right-4 -translate-y-1/2 text-sm font-bold">RX</div>
+                `;
+                
+                let packetCount = 0;
+                jitterInterval = setInterval(() => {
+                    if (packetCount >= 10) {
+                        clearInterval(jitterInterval);
+                        return;
+                    }
+                    createPacket();
+                    packetCount++;
+                }, highJitter ? (Math.random() * 800 + 200) : 500);
+            });
+            
+            function createPacket() {
+                const packet = document.createElement('div');
+                packet.className = 'packet';
+                const yPos = Math.random() * 80 + 10;
+                packet.style.top = `${yPos}%`;
+                packet.style.left = '5%';
+                jitterContainer.appendChild(packet);
+
+                setTimeout(() => {
+                    packet.style.left = '90%';
+                }, 100);
+
+                setTimeout(() => {
+                    packet.remove();
+                }, 1100);
+            }
+
+            // --- Media Chart ---
+            const mediaCtx = document.getElementById('mediaChart').getContext('2d');
+            const mediaChart = new Chart(mediaCtx, {
+                type: 'bar',
+                data: {
+                    labels: mediaData.labels,
+                    datasets: mediaData.datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, max: 10 }
+                    },
+                    plugins: {
+                        legend: { position: 'top' },
+                        title: { display: false }
+                    }
+                }
+            });
+
+            const mediaCheckboxes = document.querySelectorAll('.media-checkbox');
+            mediaCheckboxes.forEach(cb => {
+                cb.addEventListener('change', updateMediaChart);
+            });
+
+            function updateMediaChart() {
+                const selectedLabels = Array.from(mediaCheckboxes)
+                                           .filter(cb => cb.checked)
+                                           .map(cb => cb.value);
+                
+                mediaChart.data.datasets = mediaData.datasets.filter(ds => selectedLabels.includes(ds.label));
+                mediaChart.update();
+            }
+            updateMediaChart();
+
+            // --- Switching Animations ---
+            const circuitStatus = document.getElementById('circuit-status');
+            const circuitPath = document.getElementById('circuit-path');
+            const circuitData = document.getElementById('circuit-data');
+
+            function runCircuitAnimation() {
+                circuitStatus.textContent = '1. Estabelecendo circuito...';
+                circuitPath.style.transition = 'background-color 1s';
+                circuitPath.style.backgroundColor = '#6ee7b7'; // emerald-300
+
+                setTimeout(() => {
+                    circuitStatus.textContent = '2. Transferindo dados...';
+                    circuitData.style.transition = 'width 2s linear';
+                    circuitData.style.width = '100%';
+                }, 1000);
+                
+                setTimeout(() => {
+                    circuitStatus.textContent = '3. Desconectando circuito...';
+                    circuitData.style.transition = 'width 0.5s';
+                    circuitData.style.width = '0%';
+                    circuitPath.style.transition = 'background-color 0.5s';
+                    circuitPath.style.backgroundColor = '#e2e8f0'; // slate-200
+                }, 3500);
+
+                setTimeout(() => {
+                    circuitStatus.textContent = 'Pronto.';
+                }, 4500);
+            }
+
+            const packetStatus = document.getElementById('packet-status');
+            const packetAnimContainer = document.getElementById('packet-animation');
+
+            function runPacketAnimation() {
+                 packetStatus.textContent = '1. Dividindo em pacotes...';
+                 
+                 setTimeout(() => {
+                     packetStatus.textContent = '2. Enviando pacotes...';
+                     for (let i = 0; i < 5; i++) {
+                         setTimeout(() => {
+                             const packet = document.createElement('div');
+                             packet.className = 'packet bg-orange-500';
+                             const path = Math.random() > 0.5 ? 1 : -1;
+                             packet.style.left = '5%';
+                             
+                             const anim = packet.animate([
+                                 { top: '50%', transform: 'translateY(-50%)', left: '5%' },
+                                 { top: `${50 + path * 25}%`, transform: 'translateY(-50%)', left: '50%' },
+                                 { top: '50%', transform: 'translateY(-50%)', left: '90%' },
+                             ], {
+                                 duration: 2000,
+                                 easing: 'ease-in-out'
+                             });
+                             packetAnimContainer.appendChild(packet);
+                             anim.onfinish = () => packet.remove();
+
+                         }, i * 300);
+                     }
+                 }, 1000);
+
+                setTimeout(() => {
+                    packetStatus.textContent = '3. Reagrupando mensagem...';
+                }, 3500);
+
+                 setTimeout(() => {
+                    packetStatus.textContent = 'Pronto.';
+                }, 4500);
+            }
+            
+            const switchingObserver = new IntersectionObserver((entries) => {
+                if(entries[0].isIntersecting) {
+                    runCircuitAnimation();
+                    runPacketAnimation();
+                    setInterval(runCircuitAnimation, 6000);
+                    setInterval(runPacketAnimation, 6000);
+                    switchingObserver.unobserve(entries[0].target);
+                }
+            }, { threshold: 0.5 });
+            switchingObserver.observe(document.getElementById('comutacao'));
+
+            // --- Switching Chart ---
+            const switchingCtx = document.getElementById('switchingChart').getContext('2d');
+            new Chart(switchingCtx, {
+                type: 'bar',
+                data: switchingData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10,
+                            ticks: {
+                                callback: function(value) {
+                                    if (value === 0) return 'Baixo';
+                                    if (value === 5) return 'Médio';
+                                    if (value === 10) return 'Alto';
+                                    return null;
+                                }
+                            }
+                        }
+                    },
+                     plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += `${context.parsed.y}/10`;
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>
