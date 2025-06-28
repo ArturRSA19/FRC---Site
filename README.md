@@ -1,7 +1,8 @@
 # Explorador Interativo de Fundamentos de Redes
 
-![Demonstração da Aplicação](assets/img1.jpeg)
-![Demonstração da Aplicação](assets/img2.jpeg)
+![img1](https://github.com/user-attachments/assets/6f35e57b-7353-448e-a253-61e8d1236ecb)
+![img2](https://github.com/user-attachments/assets/3a695f77-0e6c-4670-a6af-fd202cd6faba)
+
 
 Uma aplicação web de página única que transforma o conteúdo técnico de um relatório sobre fundamentos de redes de computadores em uma experiência de aprendizado visual e interativa.
 
@@ -53,7 +54,7 @@ A simplicidade é um dos focos deste projeto. Toda a aplicação está contida e
 
 ## ✒️ Autoria
 
-Este projeto foi criado por **[Artur Rodrigues]**.
+Este projeto foi criado por [Artur Rodrigues](https://github.com/ArturRSA19).
 
 ## 📄 Licença
 
